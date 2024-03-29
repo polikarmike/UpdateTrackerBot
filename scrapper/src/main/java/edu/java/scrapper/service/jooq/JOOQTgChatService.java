@@ -12,9 +12,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
 public class JOOQTgChatService implements TgChatService {
     private final JOOQChatRepository chatRepository;
@@ -33,7 +31,6 @@ public class JOOQTgChatService implements TgChatService {
         Chat chat = new Chat();
         chat.setId(tgChatId);
         chat.setCreatedAt(LocalDateTime.now().atOffset(ZoneOffset.UTC));
-
         chatRepository.add(chat);
     }
 

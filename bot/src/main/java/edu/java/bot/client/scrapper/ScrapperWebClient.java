@@ -41,7 +41,7 @@ public class ScrapperWebClient implements ScrapperClient {
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError, this::handle4xxError)
             .bodyToMono(ListLinksResponse.class)
-            .onErrorComplete()
+//            .onErrorComplete()
             .block();
 
     }
@@ -56,7 +56,7 @@ public class ScrapperWebClient implements ScrapperClient {
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError, this::handle4xxError)
             .toBodilessEntity()
-            .onErrorComplete()
+//            .onErrorComplete()
             .block();
 
 
@@ -72,7 +72,7 @@ public class ScrapperWebClient implements ScrapperClient {
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError, this::handle4xxError)
             .toBodilessEntity()
-            .onErrorComplete()
+//            .onErrorComplete()
             .block();
 
 
@@ -85,7 +85,7 @@ public class ScrapperWebClient implements ScrapperClient {
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError, this::handle4xxError)
             .bodyToMono(String.class)
-            .onErrorComplete()
+//            .onErrorComplete()
             .block();
 
     }
@@ -97,7 +97,7 @@ public class ScrapperWebClient implements ScrapperClient {
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError, this::handle4xxError)
             .bodyToMono(String.class)
-            .onErrorComplete()
+//            .onErrorComplete()
             .block();
     }
 
@@ -107,8 +107,8 @@ public class ScrapperWebClient implements ScrapperClient {
                 ApiErrorResponse errorResponse =
                     new ApiErrorResponse(body.description(),
                         body.code(),
-                        body.toString(),
                         body.exceptionName(),
+                        body.exceptionMessage(),
                         body.stacktrace());
 
                 BadRequestException exception = new BadRequestException(errorResponse);

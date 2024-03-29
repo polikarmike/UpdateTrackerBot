@@ -3,18 +3,15 @@ package edu.java.scrapper.domain.repository.jdbc;
 import edu.java.scrapper.domain.repository.ChatRepository;
 import edu.java.scrapper.dto.entity.Chat;
 import edu.java.scrapper.exception.DataBaseError;
-import edu.java.scrapper.utils.linkverifier.mappers.ChatMapper;
+import edu.java.scrapper.utils.mappers.ChatMapper;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
 
-
-@Repository
 @RequiredArgsConstructor
-@Primary
+@Qualifier("JDBCChatRepository")
 public class JDBCChatRepository implements ChatRepository {
 
     private final JdbcTemplate jdbcTemplate;

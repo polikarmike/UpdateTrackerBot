@@ -3,14 +3,9 @@ package edu.java.scrapper.domain.repository.jdbc;
 import edu.java.scrapper.domain.repository.ChatLinkRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
 
-
-@Repository
 @RequiredArgsConstructor
-@Primary
 public class JDBCChatLinkRepository implements ChatLinkRepository {
 
     private final JdbcTemplate jdbcTemplate;

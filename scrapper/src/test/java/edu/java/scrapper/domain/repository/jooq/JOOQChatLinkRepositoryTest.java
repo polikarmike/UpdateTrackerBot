@@ -1,86 +1,44 @@
-package edu.java.scrapper.domain.repository;
+package edu.java.scrapper.domain.repository.jooq;
 
 import edu.java.scrapper.IntegrationEnvironment;
-import edu.java.scrapper.domain.repository.jdbc.JDBCChatLinkRepository;
-import edu.java.scrapper.domain.repository.jdbc.JDBCChatRepository;
-import edu.java.scrapper.domain.repository.jdbc.JDBCLinkRepository;
-import edu.java.scrapper.domain.repository.jooq.JOOQChatLinkRepository;
-import edu.java.scrapper.domain.repository.jooq.JOOQChatRepository;
-import edu.java.scrapper.domain.repository.jooq.JOOQLinkRepository;
 import edu.java.scrapper.dto.entity.Chat;
 import edu.java.scrapper.dto.entity.Link;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Transactional;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.transaction.annotation.Transactional;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ChatLinkRepositoryTest extends IntegrationEnvironment {
-
-    private static final Map<String, ChatRepository> chatRepositories = new HashMap<>();
-    private static final Map<String, LinkRepository> linkRepositories = new HashMap<>();
-    private static final Map<String, ChatLinkRepository> chatLinkRepositories = new HashMap<>();
+class JOOQChatLinkRepositoryTest extends IntegrationEnvironment {
     @Autowired
-    private JOOQChatRepository jooqChatRepository;
-
+    private JOOQChatRepository chatRepository;
     @Autowired
-    private JDBCChatRepository jdbcChatRepository;
-
+    private JOOQLinkRepository linkRepository;
     @Autowired
-    private JOOQLinkRepository jooqLinkRepository;
-
-    @Autowired
-    private JDBCLinkRepository jdbcLinkRepository;
-
-    @Autowired
-    private JOOQChatLinkRepository jooqChatLinkRepository;
-
-    @Autowired
-    private JDBCChatLinkRepository jdbcChatLinkRepository;
-
-    @BeforeAll
-    void setup() {
-        chatRepositories.put("JOOQ", jooqChatRepository);
-        chatRepositories.put("JDBC", jdbcChatRepository);
-        linkRepositories.put("JOOQ", jooqLinkRepository);
-        linkRepositories.put("JDBC", jdbcLinkRepository);
-        chatLinkRepositories.put("JOOQ", jooqChatLinkRepository);
-        chatLinkRepositories.put("JDBC", jdbcChatLinkRepository);
+    private JOOQChatLinkRepository chatLinkRepository;
+    @DynamicPropertySource
+    static void properties(DynamicPropertyRegistry registry) {
+        registry.add("app.database-access-type", () -> "jooq");
     }
 
-    Stream<Arguments> implementations() {
-        return Stream.of(
-            Arguments.of("JOOQ", chatRepositories.get("JOOQ"), linkRepositories.get("JOOQ"), chatLinkRepositories.get("JOOQ")),
-            Arguments.of("JDBC", chatRepositories.get("JDBC"), linkRepositories.get("JDBC"), chatLinkRepositories.get("JDBC"))
-        );
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Добавление связи между чатом и ссылкой")
+    @Test
     @Transactional
     @Rollback
-    void addTest(String implName,
-        ChatRepository chatRepository,
-        LinkRepository linkRepository,
-        ChatLinkRepository chatLinkRepository)
+    @DisplayName("Добавление связи между чатом и ссылкой")
+    void addTest()
         throws URISyntaxException {
 
         Long chatId = 1L;
@@ -100,15 +58,11 @@ class ChatLinkRepositoryTest extends IntegrationEnvironment {
         assertTrue(retrievedLinkIds.contains(linkId));
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Удаление связи между чатом и ссылкой")
+    @Test
     @Transactional
     @Rollback
-    void removeTest(String implName,
-        ChatRepository chatRepository,
-        LinkRepository linkRepository,
-        ChatLinkRepository chatLinkRepository)
+    @DisplayName("Удаление связи между чатом и ссылкой")
+    void removeTest()
         throws URISyntaxException {
 
         Long chatId = 1L;
@@ -130,15 +84,11 @@ class ChatLinkRepositoryTest extends IntegrationEnvironment {
         Assertions.assertFalse(retrievedLinkIds.contains(linkId));
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Получение идентификаторов ссылок по идентификатору чата")
+    @Test
     @Transactional
     @Rollback
-    void getLinkIdsByChatIdTest(String implName,
-        ChatRepository chatRepository,
-        LinkRepository linkRepository,
-        ChatLinkRepository chatLinkRepository)
+    @DisplayName("Получение идентификаторов ссылок по идентификатору чата")
+    void getLinkIdsByChatIdTest()
         throws URISyntaxException {
 
         Long chatId = 1L;
@@ -166,15 +116,11 @@ class ChatLinkRepositoryTest extends IntegrationEnvironment {
         assertTrue(retrievedLinkIds.contains(linkId2));
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Получение идентификаторов чатов по идентификатору ссылки")
+    @Test
     @Transactional
     @Rollback
-    void getChatIdsByLinkIdTest(String implName,
-        ChatRepository chatRepository,
-        LinkRepository linkRepository,
-        ChatLinkRepository chatLinkRepository)
+    @DisplayName("Получение идентификаторов чатов по идентификатору ссылки")
+    void getChatIdsByLinkIdTest()
         throws URISyntaxException {
 
         Long chatId1 = 1L;
@@ -206,15 +152,11 @@ class ChatLinkRepositoryTest extends IntegrationEnvironment {
     }
 
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Проверка существования связных идентификатора чата и идентификатора ссылки")
+    @Test
     @Transactional
     @Rollback
-    void existChatIdLinkId(String implName,
-        ChatRepository chatRepository,
-        LinkRepository linkRepository,
-        ChatLinkRepository chatLinkRepository)
+    @DisplayName("Проверка существования связных идентификатора чата и идентификатора ссылки")
+    void existChatIdLinkId()
         throws URISyntaxException {
 
         Long chatId = 1L;

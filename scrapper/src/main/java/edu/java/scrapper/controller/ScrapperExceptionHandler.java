@@ -75,15 +75,14 @@ public class ScrapperExceptionHandler {
     }
 
     private ApiErrorResponse createErrorResponse(String statusCode, Exception ex) {
-        String errorMessage = ex.getMessage();
         List<String> stackTraceList = Arrays.stream(ex.getStackTrace())
             .map(StackTraceElement::toString)
             .toList();
         return new ApiErrorResponse(
-            "Error occurred",
+            "Scrapper Error",
             statusCode,
             ex.getClass().getSimpleName(),
-            errorMessage,
+            ex.getMessage(),
             stackTraceList
         );
     }

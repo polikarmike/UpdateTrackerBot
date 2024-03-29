@@ -17,9 +17,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
 public class JOOQLinkService implements LinkService {
     private final JOOQLinkRepository linkRepository;

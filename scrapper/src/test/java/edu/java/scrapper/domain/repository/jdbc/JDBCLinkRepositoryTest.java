@@ -1,61 +1,42 @@
-package edu.java.scrapper.domain.repository;
+package edu.java.scrapper.domain.repository.jdbc;
 
 import edu.java.scrapper.IntegrationEnvironment;
+import edu.java.scrapper.domain.repository.LinkRepository;
 import edu.java.scrapper.dto.entity.Link;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.OffsetDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class LinkRepositoryTest extends IntegrationEnvironment {
-    private static final Map<String, LinkRepository> linkRepositories = new HashMap<>();
+class JDBCLinkRepositoryTest extends IntegrationEnvironment {
     @Autowired
-    @Qualifier("JOOQLinkRepository")
-    private LinkRepository jooqlinkRepository;
+    private LinkRepository linkRepository;
 
-    @Autowired
-    @Qualifier("JDBCLinkRepository")
-    private LinkRepository jdbclinkRepository;
-
-    @BeforeAll
-    void setup() {
-        linkRepositories.put("JOOQ", jooqlinkRepository);
-        linkRepositories.put("JDBC", jdbclinkRepository);
+    @DynamicPropertySource
+    static void properties(DynamicPropertyRegistry registry) {
+        registry.add("app.database-access-type", () -> "jdbc");
     }
 
-    Stream<Arguments> implementations() {
-        return Stream.of(
-            Arguments.of("JOOQ", linkRepositories.get("JOOQ")),
-            Arguments.of("JDBC", linkRepositories.get("JDBC"))
-        );
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Добавление ссылки")
+    @Test
     @Transactional
     @Rollback
-    void addTest(String implName, LinkRepository linkRepository) throws URISyntaxException {
+    @DisplayName("Добавление ссылки")
+    void addTest() throws URISyntaxException {
         URI exampleURI = new URI("https://example.com");
 
         Link addedLink = linkRepository.add(exampleURI);
@@ -63,12 +44,11 @@ class LinkRepositoryTest extends IntegrationEnvironment {
         assertEquals(exampleURI, addedLink.getUri());
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Удаление всех ссылок")
+    @Test
     @Transactional
     @Rollback
-    void removeTest(String implName, LinkRepository linkRepository) throws URISyntaxException {
+    @DisplayName("Удаление всех ссылок")
+    void removeTest() throws URISyntaxException {
         URI exampleURI = new URI("https://example.com");
         Link addedLink = linkRepository.add(exampleURI);
 
@@ -77,12 +57,11 @@ class LinkRepositoryTest extends IntegrationEnvironment {
         assertTrue(linkRepository.getLinkById(addedLink.getId()).isEmpty());
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Получение всех ссылок")
+    @Test
     @Transactional
     @Rollback
-    void findAllTest(String implName, LinkRepository linkRepository) throws URISyntaxException {
+    @DisplayName("Получение всех ссылок")
+    void findAllTest() throws URISyntaxException {
         URI exampleURI1 = new URI("https://example1.com");
         Link addedLink1 = linkRepository.add(exampleURI1);
 
@@ -97,12 +76,11 @@ class LinkRepositoryTest extends IntegrationEnvironment {
         assertTrue(links.contains(addedLink2));
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Получение ссылки по ID")
+    @Test
     @Transactional
     @Rollback
-    void getLinkByIdTest(String implName, LinkRepository linkRepository) throws URISyntaxException {
+    @DisplayName("Получение ссылки по ID")
+    void getLinkByIdTest() throws URISyntaxException {
         URI exampleURI = new URI("https://example.com");
         Link addedLink = linkRepository.add(exampleURI);
 
@@ -112,12 +90,11 @@ class LinkRepositoryTest extends IntegrationEnvironment {
         assertEquals(addedLink, retrievedLink.get());
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Получение ссылки по URI")
+    @Test
     @Transactional
     @Rollback
-    void getLinkByUriTest(String implName, LinkRepository linkRepository) throws URISyntaxException {
+    @DisplayName("Получение ссылки по URI")
+    void getLinkByUriTest() throws URISyntaxException {
         URI exampleURI = new URI("https://example.com");
         Link addedLink = linkRepository.add(exampleURI);
 
@@ -127,12 +104,11 @@ class LinkRepositoryTest extends IntegrationEnvironment {
         assertEquals(addedLink, retrievedLink.get());
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Обновление времени последней проверки ссылки")
+    @Test
     @Transactional
     @Rollback
-    void updateLastUpdatedTimeTest(String implName, LinkRepository linkRepository) throws URISyntaxException {
+    @DisplayName("Обновление времени последней проверки ссылки")
+    void updateLastUpdatedTimeTest() throws URISyntaxException {
         URI exampleURI = new URI("https://example.com");
         Link addedLink = linkRepository.add(exampleURI);
 
@@ -146,12 +122,11 @@ class LinkRepositoryTest extends IntegrationEnvironment {
         assertTrue(initialLastUpdatedAt.isBefore(updatedLink.getLastUpdatedAt()));
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Поиск старых ссылок")
+    @Test
     @Transactional
     @Rollback
-    void findOldestLinksTest(String implName, LinkRepository linkRepository) throws URISyntaxException {
+    @DisplayName("Поиск старых ссылок")
+    void findOldestLinksTest() throws URISyntaxException {
         int batchSize = 2;
 
         URI exampleURI1 = new URI("https://example1.com");

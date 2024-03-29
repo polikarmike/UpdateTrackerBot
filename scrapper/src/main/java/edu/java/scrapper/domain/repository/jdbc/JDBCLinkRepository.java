@@ -3,19 +3,15 @@ package edu.java.scrapper.domain.repository.jdbc;
 import edu.java.scrapper.domain.repository.LinkRepository;
 import edu.java.scrapper.dto.entity.Link;
 import edu.java.scrapper.exception.DataBaseError;
-import edu.java.scrapper.utils.linkverifier.mappers.LinkMapper;
+import edu.java.scrapper.utils.mappers.LinkMapper;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
 
-@Repository
 @RequiredArgsConstructor
-@Primary
 public class JDBCLinkRepository  implements LinkRepository {
 
     private final JdbcTemplate jdbcTemplate;

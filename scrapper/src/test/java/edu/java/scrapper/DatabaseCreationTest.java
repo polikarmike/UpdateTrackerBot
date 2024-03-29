@@ -6,13 +6,15 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 
-
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DatabaseCreationTest extends IntegrationEnvironment {
-
     @Test
     @DisplayName("Проверка создания базы данных")
     public void testDatabaseCreation() {

@@ -28,12 +28,14 @@ public abstract class IntegrationEnvironment {
             .withDatabaseName("scrapper")
             .withUsername("postgres")
             .withPassword("postgres");
+        POSTGRES.setCommand("postgres", "-c", "max_connections=300");
+
         POSTGRES.start();
 
         runMigrations(POSTGRES);
     }
 
-    private static void runMigrations(JdbcDatabaseContainer<?> container) {
+    public static void runMigrations(JdbcDatabaseContainer<?> container) {
         try (Connection connection = createConnection(container)) {
             Liquibase liquibase = createLiquibase(connection);
             liquibase.update(new Contexts(), new LabelExpression());
