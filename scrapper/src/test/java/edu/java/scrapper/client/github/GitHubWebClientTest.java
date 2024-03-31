@@ -3,18 +3,29 @@ package edu.java.scrapper.client.github;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import edu.java.scrapper.client.configuration.retry.RetryPolicy;
+import edu.java.scrapper.client.configuration.retry.strategy.ConstantBackOffStrategy;
+import edu.java.scrapper.client.configuration.retry.strategy.LinearBackOffStrategy;
 import edu.java.scrapper.dto.github.GHEventResponse;
 import edu.java.scrapper.dto.github.GHRepoResponse;
+import edu.java.scrapper.exception.ServerException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.stereotype.Component;
+import reactor.core.Exceptions;
+import java.lang.reflect.Type;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -55,7 +66,10 @@ public class GitHubWebClientTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(jsonResponse)));
 
-        GitHubClient gitHubClient = new GitHubWebClient("http://localhost:" + WIREMOCK_PORT);
+        Set<Integer> emptyCodes = new HashSet<>(); ;
+        RetryPolicy retryPolicy = new RetryPolicy(0,0, emptyCodes, new ConstantBackOffStrategy());
+
+        GitHubClient gitHubClient = new GitHubWebClient("http://localhost:" + WIREMOCK_PORT, retryPolicy);
 
         // when
         GHRepoResponse response = gitHubClient.fetchRepository("octocat", "Hello-World");
@@ -94,7 +108,10 @@ public class GitHubWebClientTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(jsonResponse)));
 
-        GitHubClient gitHubClient = new GitHubWebClient("http://localhost:" + WIREMOCK_PORT);
+        Set<Integer> emptyCodes = new HashSet<>(); ;
+        RetryPolicy retryPolicy = new RetryPolicy(0,0, emptyCodes, new ConstantBackOffStrategy());
+
+        GitHubClient gitHubClient = new GitHubWebClient("http://localhost:" + WIREMOCK_PORT, retryPolicy);
 
         // when
         GHEventResponse response = gitHubClient.fetchEvents("octocat", "Hello-World");
@@ -106,4 +123,45 @@ public class GitHubWebClientTest {
         assertEquals("PR title", response.payload().pullRequest().title());
         assertEquals(OffsetDateTime.parse("2022-02-24T16:40:42Z"), response.createdAt());
     }
+
+    @Test
+    @DisplayName("Тестирование получения репозитория с повторными попытками")
+    public void fetchRepositoryTestWithRetry() {
+        // given
+        stubFor(get(urlEqualTo("/repos/octocat/Hello-World"))
+            .willReturn(aResponse()
+                .withStatus(500)
+                .withBody("Server Error")));
+
+        Set<Integer> retryStatuses = Set.of(500);
+        RetryPolicy retryPolicy = new RetryPolicy(3, 1, retryStatuses, new LinearBackOffStrategy());
+
+        GitHubClient gitHubClient = new GitHubWebClient("http://localhost:" + WIREMOCK_PORT, retryPolicy);
+
+        assertThrows(Throwable.class, () -> {
+            gitHubClient.fetchRepository("octocat", "Hello-World");
+        });
+    }
+
+
+    @Test
+    @DisplayName("Тестирование получения событий с повторными попытками")
+    public void fetchEventsTestWithRetry() {
+        stubFor(get(urlEqualTo("/repos/octocat/Hello-World/events"))
+            .willReturn(aResponse()
+                .withStatus(500)
+                .withBody("Server Error")));
+
+        Set<Integer> retryStatuses = Set.of(500);
+        RetryPolicy retryPolicy = new RetryPolicy(3, 1, retryStatuses, new ConstantBackOffStrategy());
+
+        GitHubClient gitHubClient = new GitHubWebClient("http://localhost:" + WIREMOCK_PORT, retryPolicy);
+
+
+        assertThrows(Throwable.class, () -> {
+            gitHubClient.fetchEvents("octocat", "Hello-World");
+        });
+
+    }
 }
+

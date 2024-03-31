@@ -7,6 +7,7 @@ import edu.java.scrapper.exception.LinkNotFoundException;
 import edu.java.scrapper.exception.MissingChatException;
 import edu.java.scrapper.exception.RepeatedLinkAdditionException;
 import edu.java.scrapper.exception.RepeatedRegistrationException;
+import edu.java.scrapper.exception.ServerException;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+
 
 @RestControllerAdvice
 public class ScrapperExceptionHandler {
@@ -73,6 +75,13 @@ public class ScrapperExceptionHandler {
     public ApiErrorResponse handleNoHandlerFoundException(NoHandlerFoundException ex) {
         return createErrorResponse(ex.getStatusCode().toString(), ex);
     }
+
+    @ExceptionHandler(ServerException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ApiErrorResponse handleServerException(ServerException ex) {
+        return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.toString(), ex);
+    }
+
 
     private ApiErrorResponse createErrorResponse(String statusCode, Exception ex) {
         List<String> stackTraceList = Arrays.stream(ex.getStackTrace())

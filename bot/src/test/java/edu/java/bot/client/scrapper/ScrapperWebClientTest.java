@@ -3,6 +3,8 @@ package edu.java.bot.client.scrapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import edu.java.bot.client.configuration.retry.RetryPolicy;
+import edu.java.bot.client.configuration.retry.strategy.ConstantBackOffStrategy;
 import edu.java.common.dto.responses.LinkResponse;
 import edu.java.common.dto.responses.ListLinksResponse;
 import org.junit.jupiter.api.AfterEach;
@@ -12,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import java.net.URI;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -29,7 +33,9 @@ public class ScrapperWebClientTest {
         wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
         wireMockServer.start();
         WireMock.configureFor("localhost", wireMockServer.port());
-        client = new ScrapperWebClient("http://localhost:" + wireMockServer.port());
+        Set<Integer> emptyCodes = new HashSet<>(); ;
+        RetryPolicy retryPolicy = new RetryPolicy(0,0, emptyCodes, new ConstantBackOffStrategy());
+        client = new ScrapperWebClient("http://localhost:" + wireMockServer.port(), retryPolicy);
     }
 
     @Test
