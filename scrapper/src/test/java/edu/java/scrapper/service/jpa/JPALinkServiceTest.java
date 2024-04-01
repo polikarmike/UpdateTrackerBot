@@ -64,7 +64,7 @@ public class JPALinkServiceTest extends IntegrationEnvironment {
         when(linkVerifier.checkLink(uri)).thenReturn(true);
         Link result = linkService.add(tgChatId, uri);
 
-        Assertions.assertTrue(linkRepository.exists(tgChatId, result.getId()));
+        Assertions.assertTrue(linkRepository.existsByChatsIdAndId(tgChatId, result.getId()));
     }
 
     @Test
@@ -81,7 +81,7 @@ public class JPALinkServiceTest extends IntegrationEnvironment {
         Link result = linkService.add(tgChatId, uri);
         linkService.remove(tgChatId, uri);
 
-        Assertions.assertFalse(linkRepository.exists(tgChatId, result.getId()));
+        Assertions.assertFalse(linkRepository.existsByChatsIdAndId(tgChatId, result.getId()));
     }
 
     @Test
@@ -98,7 +98,7 @@ public class JPALinkServiceTest extends IntegrationEnvironment {
 
         linkService.remove(tgChatId, result.getId());
 
-        Assertions.assertFalse(linkRepository.exists(tgChatId, result.getId()));
+        Assertions.assertFalse(linkRepository.existsByChatsIdAndId(tgChatId, result.getId()));
     }
 
     @Test

@@ -18,6 +18,7 @@ public class DeleteCommand implements Command {
     private static final String SUCCESS_MESSAGE = "Чат успешно удален.";
     private static final String DEFAULT_ERROR_MESSAGE = "В работе чата произошла ошибка, повторите попытку позднее";
     private static final String CHAT_NOT_FOUND_MESSAGE = "Вы не зарегистрированы!";
+    private static final String NOT_FOUND_ERROR_CODE = "404 NOT_FOUND";
 
     private final ScrapperClient scrapperClient;
 
@@ -31,7 +32,7 @@ public class DeleteCommand implements Command {
             return SUCCESS_MESSAGE;
         } catch (BadRequestException e) {
             return switch (e.getApiErrorResponse().code()) {
-                case "404 NOT_FOUND" -> CHAT_NOT_FOUND_MESSAGE;
+                case NOT_FOUND_ERROR_CODE -> CHAT_NOT_FOUND_MESSAGE;
                 default -> DEFAULT_ERROR_MESSAGE;
             };
         } catch (Exception e) {

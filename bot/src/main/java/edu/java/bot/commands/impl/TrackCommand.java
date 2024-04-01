@@ -23,6 +23,9 @@ public class TrackCommand implements Command {
     private static final String ALREADY_ADDED_LINK_MESSAGE = "Данная ссылка уже есть в списке!";
     private static final String BAD_LINK_MESSAGE =
         "Введенная ссылка некорректна. Пожалуйста, убедитесь, что вы ввели правильную ссылку.";
+    private static final String NOT_FOUND_ERROR_CODE = "404 NOT_FOUND";
+    private static final String CONFLICT_ERROR_CODE = "409 CONFLICT";
+    private static final String BAD_REQUEST_ERROR_CODE = "400 BAD_REQUEST";
 
     private final ScrapperClient scrapperClient;
 
@@ -48,9 +51,9 @@ public class TrackCommand implements Command {
         } catch (BadRequestException e) {
             log.error(e.getApiErrorResponse().code());
             return switch (e.getApiErrorResponse().code()) {
-                case "404 NOT_FOUND" -> CHAT_NOT_FOUND_MESSAGE;
-                case "409 CONFLICT" -> ALREADY_ADDED_LINK_MESSAGE;
-                case "400 BAD_REQUEST" -> BAD_LINK_MESSAGE;
+                case NOT_FOUND_ERROR_CODE -> CHAT_NOT_FOUND_MESSAGE;
+                case CONFLICT_ERROR_CODE -> ALREADY_ADDED_LINK_MESSAGE;
+                case BAD_REQUEST_ERROR_CODE -> BAD_LINK_MESSAGE;
                 default -> DEFAULT_ERROR_MESSAGE;
             };
         } catch (Exception e) {
