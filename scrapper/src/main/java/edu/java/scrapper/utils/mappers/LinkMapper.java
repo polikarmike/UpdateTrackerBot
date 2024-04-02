@@ -1,4 +1,4 @@
-package edu.java.scrapper.utils.linkverifier.mappers;
+package edu.java.scrapper.utils.mappers;
 
 import edu.java.scrapper.domain.jooq.tables.records.LinkRecord;
 import edu.java.scrapper.dto.entity.Link;

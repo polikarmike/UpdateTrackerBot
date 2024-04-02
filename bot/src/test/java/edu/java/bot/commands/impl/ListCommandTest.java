@@ -3,6 +3,8 @@ package edu.java.bot.commands.impl;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import edu.java.bot.client.scrapper.ScrapperClient;
+import edu.java.common.dto.responses.LinkResponse;
+import edu.java.common.dto.responses.ListLinksResponse;
 import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -11,7 +13,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.pengrad.telegrambot.model.Update;
-import java.util.Arrays;
+import java.net.URI;
+import java.util.List;
 
 public class ListCommandTest {
     @Test
@@ -19,7 +22,9 @@ public class ListCommandTest {
     public void testExecuteListCommand() {
         // Given
         ScrapperClient scrapperClient = Mockito.mock(ScrapperClient.class);
-        Mockito.when(scrapperClient.getAllLinks(anyLong())).thenReturn(null);
+        URI exampleUri = URI.create("http://example.com");
+        ListLinksResponse response = new ListLinksResponse(List.of(new LinkResponse(1L, exampleUri)), 1);
+        Mockito.when(scrapperClient.getAllLinks(anyLong())).thenReturn(response);
 
         ListCommand listCommand = new ListCommand(scrapperClient);
         Update update = Mockito.mock(Update.class);
@@ -28,10 +33,10 @@ public class ListCommandTest {
         Mockito.when(update.message().chat().id()).thenReturn(12345L);
 
         // When
-        String response = listCommand.execute(update);
+        String result = listCommand.execute(update);
 
         // Then
-        assertEquals("Здесь будет реализация команды /list", response);
+        assertEquals("Вот отслеживаемые ссылки:\n\n- http://example.com\n", result);
     }
 
     @Test

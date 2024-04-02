@@ -3,14 +3,13 @@ package edu.java.scrapper.domain.repository.jooq;
 import edu.java.scrapper.domain.repository.ChatRepository;
 import edu.java.scrapper.dto.entity.Chat;
 import edu.java.scrapper.exception.DataBaseError;
+import edu.java.scrapper.utils.mappers.ChatMapper;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
-import org.springframework.stereotype.Repository;
 import static edu.java.scrapper.domain.jooq.tables.Chat.CHAT;
 
-@Repository
 @RequiredArgsConstructor
 public class JOOQChatRepository implements ChatRepository {
 
@@ -36,13 +35,15 @@ public class JOOQChatRepository implements ChatRepository {
     @Override
     public List<Chat> findAll() {
         return dslContext.selectFrom(CHAT)
-            .fetchInto(Chat.class);
+            .fetch()
+            .map(ChatMapper::mapRecordToChat);
     }
 
     @Override
     public Optional<Chat> getById(Long id) {
         return dslContext.selectFrom(CHAT)
             .where(CHAT.ID.eq(id))
-            .fetchOptionalInto(Chat.class);
+            .fetchOptional()
+            .map(ChatMapper::mapRecordToChat);
     }
 }

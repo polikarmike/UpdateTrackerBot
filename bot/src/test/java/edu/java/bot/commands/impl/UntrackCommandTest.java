@@ -5,10 +5,12 @@ import com.pengrad.telegrambot.model.Message;
 import edu.java.bot.client.scrapper.ScrapperClient;
 import org.mockito.Mockito;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import com.pengrad.telegrambot.model.Update;
+import java.net.URI;
 
 public class UntrackCommandTest {
     @Test
@@ -16,20 +18,21 @@ public class UntrackCommandTest {
     public void testExecuteUntrackCommand() {
         // Given
         ScrapperClient scrapperClient = Mockito.mock(ScrapperClient.class);
-        Mockito.when(scrapperClient.getAllLinks(anyLong())).thenReturn(null);
+        Mockito.doNothing().when(scrapperClient).removeLink(anyLong(), any(URI.class));
 
         UntrackCommand untrackCommand = new UntrackCommand(scrapperClient);
         Update update = Mockito.mock(Update.class);
-        Mockito.when(update.message()).thenReturn(Mockito.mock(Message.class));
-        Mockito.when(update.message().chat()).thenReturn(Mockito.mock(Chat.class));
-        Mockito.when(update.message().chat().id()).thenReturn(12345L);
-
+        Message message = Mockito.mock(Message.class);
+        Mockito.when(update.message()).thenReturn(message);
+        Mockito.when(message.chat()).thenReturn(Mockito.mock(Chat.class));
+        Mockito.when(message.chat().id()).thenReturn(12345L);
+        Mockito.when(message.text()).thenReturn("/untrack https://example.com");
 
         // When
         String response = untrackCommand.execute(update);
 
         // Then
-        assertEquals("Здесь будет реализация команды /untrack", response);
+        assertEquals("Ссылка успешно удалена: https://example.com", response);
     }
 
     @Test

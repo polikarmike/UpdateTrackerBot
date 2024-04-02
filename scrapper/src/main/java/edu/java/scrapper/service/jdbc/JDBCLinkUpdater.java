@@ -11,12 +11,8 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
-@Primary
 public class JDBCLinkUpdater implements LinkUpdater {
     private final LinkService linkService;
     private final UpdaterHolder updaterHolder;

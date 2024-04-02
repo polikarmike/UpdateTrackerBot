@@ -3,6 +3,7 @@ package edu.java.bot.commands.impl;
 import com.pengrad.telegrambot.model.Update;
 import edu.java.bot.client.scrapper.ScrapperClient;
 import edu.java.bot.commands.Command;
+import edu.java.bot.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -14,15 +15,29 @@ import org.springframework.stereotype.Component;
 public class DeleteCommand implements Command {
     private static final String COMMAND_NAME = "/delete";
     private static final String COMMAND_DESCRIPTION = "Прекратить работу и удалить данные";
-    private static final String COMMAND_RESPONSE = "Здесь будет реализация команды /delete";
+    private static final String SUCCESS_MESSAGE = "Чат успешно удален.";
+    private static final String DEFAULT_ERROR_MESSAGE = "В работе чата произошла ошибка, повторите попытку позднее";
+    private static final String CHAT_NOT_FOUND_MESSAGE = "Вы не зарегистрированы!";
+    private static final String NOT_FOUND_ERROR_CODE = "404 NOT_FOUND";
+
     private final ScrapperClient scrapperClient;
 
     @Override
     public String execute(Update update) {
         var tgChatId = update.message().chat().id();
-        scrapperClient.deleteChat(tgChatId);
-        log.info("Delete command executed");
-        return COMMAND_RESPONSE;
+
+        try {
+            scrapperClient.deleteChat(tgChatId);
+            log.info("Команда delete выполнена");
+            return SUCCESS_MESSAGE;
+        } catch (BadRequestException e) {
+            return switch (e.getApiErrorResponse().code()) {
+                case NOT_FOUND_ERROR_CODE -> CHAT_NOT_FOUND_MESSAGE;
+                default -> DEFAULT_ERROR_MESSAGE;
+            };
+        } catch (Exception e) {
+            return DEFAULT_ERROR_MESSAGE;
+        }
     }
 
     @Override

@@ -29,7 +29,7 @@ public class StartCommandTest {
         String response = startCommand.execute(update);
 
         // Then
-        assertEquals("Здесь будет реализация команды /start", response);
+        assertEquals("Чат успешно зарегистрирован.", response);
     }
 
     @Test

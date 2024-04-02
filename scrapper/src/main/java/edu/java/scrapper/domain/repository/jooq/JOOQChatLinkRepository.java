@@ -5,11 +5,9 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.jooq.Record1;
-import org.springframework.stereotype.Repository;
 import static edu.java.scrapper.domain.jooq.tables.Link.LINK;
 import static edu.java.scrapper.domain.jooq.tables.LinkChat.LINK_CHAT;
 
-@Repository
 @RequiredArgsConstructor
 public class JOOQChatLinkRepository implements ChatLinkRepository {
 

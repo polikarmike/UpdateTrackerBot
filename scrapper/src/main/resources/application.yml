@@ -8,6 +8,7 @@ app:
   link-cleaner:
     enable: true
     time-cron-expression: 0 0 2 * * ? # second minute hour dayOfMonth month dayOfWeek
+  database-access-type: jpa
 
 clients:
   github:

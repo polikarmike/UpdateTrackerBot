@@ -1,128 +1,59 @@
-package edu.java.scrapper.service;
+package edu.java.scrapper.service.jooq;
 
 import edu.java.scrapper.IntegrationEnvironment;
-import edu.java.scrapper.domain.repository.ChatLinkRepository;
-import edu.java.scrapper.domain.repository.ChatRepository;
-import edu.java.scrapper.domain.repository.LinkRepository;
-import edu.java.scrapper.domain.repository.jdbc.JDBCChatLinkRepository;
-import edu.java.scrapper.domain.repository.jdbc.JDBCChatRepository;
-import edu.java.scrapper.domain.repository.jdbc.JDBCLinkRepository;
 import edu.java.scrapper.domain.repository.jooq.JOOQChatLinkRepository;
 import edu.java.scrapper.domain.repository.jooq.JOOQChatRepository;
 import edu.java.scrapper.domain.repository.jooq.JOOQLinkRepository;
 import edu.java.scrapper.dto.entity.Link;
-import edu.java.scrapper.service.jdbc.JDBCLinkService;
-import edu.java.scrapper.service.jdbc.JDBCTgChatService;
-import edu.java.scrapper.service.jooq.JOOQLinkService;
-import edu.java.scrapper.service.jooq.JOOQTgChatService;
+import edu.java.scrapper.service.LinkService;
+import edu.java.scrapper.service.TgChatService;
 import edu.java.scrapper.utils.linkverifier.LinkVerifier;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class LinkServiceTest extends IntegrationEnvironment{
-    private static final Map<String, ChatRepository> chatRepositories = new HashMap<>();
-    private static final Map<String, LinkRepository> linkRepositories = new HashMap<>();
-    private static final Map<String, ChatLinkRepository> chatLinkRepositories = new HashMap<>();
-    private static final Map<String, TgChatService> tgChatServiceMap = new HashMap<>();
-    private static final Map<String, LinkService> linkServiceHashMap = new HashMap<>();
+public class JOOQLinkServiceTest extends IntegrationEnvironment{
     @Autowired
-    private JOOQChatRepository jooqChatRepository;
-
+    private JOOQChatRepository chatRepository;
     @Autowired
-    private JDBCChatRepository jdbcChatRepository;
-
+    private JOOQLinkRepository linkRepository;
     @Autowired
-    private JOOQLinkRepository jooqLinkRepository;
-
+    private JOOQChatLinkRepository chatLinkRepository;
     @Autowired
-    private JDBCLinkRepository jdbcLinkRepository;
-
+    private TgChatService tgChatService;
     @Autowired
-    private JOOQChatLinkRepository jooqChatLinkRepository;
-
-    @Autowired
-    private JDBCChatLinkRepository jdbcChatLinkRepository;
-
-    @Autowired
-    private JDBCTgChatService jdbcTgChatService;
-
-    @Autowired
-    private JOOQTgChatService jooqTgChatService;
-
-    @Autowired
-    private JDBCLinkService jdbcLinkService;
-
-    @Autowired
-    private JOOQLinkService jooqLinkService;
-
+    private LinkService linkService;
     @MockBean
     private LinkVerifier linkVerifier;
 
-    @BeforeAll
-    void setup() {
-        chatRepositories.put("JOOQ", jooqChatRepository);
-        chatRepositories.put("JDBC", jdbcChatRepository);
-        linkRepositories.put("JOOQ", jooqLinkRepository);
-        linkRepositories.put("JDBC", jdbcLinkRepository);
-        chatLinkRepositories.put("JOOQ", jooqChatLinkRepository);
-        chatLinkRepositories.put("JDBC", jdbcChatLinkRepository);
-        tgChatServiceMap.put("JOOQ", jooqTgChatService);
-        tgChatServiceMap.put("JDBC", jdbcTgChatService);
-        linkServiceHashMap.put("JOOQ", jooqLinkService);
-        linkServiceHashMap.put("JDBC", jdbcLinkService);
+    @DynamicPropertySource
+    static void properties(DynamicPropertyRegistry registry) {
+        registry.add("app.database-access-type", () -> "jooq");
     }
 
-    Stream<Arguments> implementations() {
-        return Stream.of(
-            Arguments.of("JOOQ", chatRepositories.get("JOOQ"),
-                linkRepositories.get("JOOQ"),
-                chatLinkRepositories.get("JOOQ"),
-                tgChatServiceMap.get("JOOQ"),
-                linkServiceHashMap.get("JOOQ")),
-            Arguments.of("JDBC",
-                chatRepositories.get("JDBC"),
-                linkRepositories.get("JDBC"),
-                chatLinkRepositories.get("JDBC"),
-                tgChatServiceMap.get("JDBC"),
-                linkServiceHashMap.get("JDBC"))
-        );
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Добавление ссылки в чат")
+    @Test
     @Transactional
     @Rollback
-    public void testAdd(String implName,
-        ChatRepository chatRepository,
-        LinkRepository linkRepository,
-        ChatLinkRepository chatLinkRepository,
-        TgChatService tgChatService,
-        LinkService linkService) {
-
+    @DisplayName("Добавление ссылки в чат")
+    public void testAdd() {
         long tgChatId = 123L;
         URI uri = URI.create("http://example.com");
 
@@ -135,17 +66,11 @@ public class LinkServiceTest extends IntegrationEnvironment{
         Assertions.assertTrue(chatLinkRepository.exists(tgChatId, addedLink.getId()));
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Удаление ссылки из чата по ссылке")
+    @Test
     @Transactional
     @Rollback
-    public void testRemoveByUri(String implName,
-        ChatRepository chatRepository,
-        LinkRepository linkRepository,
-        ChatLinkRepository chatLinkRepository,
-        TgChatService tgChatService,
-        LinkService linkService) {
+    @DisplayName("Удаление ссылки из чата по ссылке")
+    public void testRemoveByUri() {
         long tgChatId = 123L;
         URI uri = URI.create("http://example.com");
 
@@ -161,18 +86,11 @@ public class LinkServiceTest extends IntegrationEnvironment{
         Assertions.assertFalse(chatLinkRepository.exists(tgChatId, addedLink.getId()));
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Удаление ссылки из чата по индефикатору")
+    @Test
     @Transactional
     @Rollback
-    public void testRemoveById(String implName,
-        ChatRepository chatRepository,
-        LinkRepository linkRepository,
-        ChatLinkRepository chatLinkRepository,
-        TgChatService tgChatService,
-        LinkService linkService) {
-
+    @DisplayName("Удаление ссылки из чата по индефикатору")
+    public void testRemoveById() {
         long tgChatId = 123L;
         URI uri = URI.create("http://example.com");
 
@@ -189,18 +107,11 @@ public class LinkServiceTest extends IntegrationEnvironment{
         Assertions.assertFalse(chatLinkRepository.exists(tgChatId, linkId));
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Получение всех ссылок чата")
+    @Test
     @Transactional
     @Rollback
-    public void testListAll(String implName,
-        ChatRepository chatRepository,
-        LinkRepository linkRepository,
-        ChatLinkRepository chatLinkRepository,
-        TgChatService tgChatService,
-        LinkService linkService) {
-
+    @DisplayName("Получение всех ссылок чата")
+    public void testListAll() {
         long tgChatId = 123L;
         URI uri1 = URI.create("http://example1.com");
         URI uri2 = URI.create("http://example2.com");
@@ -219,18 +130,11 @@ public class LinkServiceTest extends IntegrationEnvironment{
         Assertions.assertTrue(links.contains(addedLink2));
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Очистка неиспользуемых ссылок")
+    @Test
     @Transactional
     @Rollback
-    public void testCleanupUnusedLinks(String implName,
-        ChatRepository chatRepository,
-        LinkRepository linkRepository,
-        ChatLinkRepository chatLinkRepository,
-        TgChatService tgChatService,
-        LinkService linkService) {
-
+    @DisplayName("Очистка неиспользуемых ссылок")
+    public void testCleanupUnusedLinks() {
         long tgChatId = 123L;
         URI uri1 = URI.create("http://example1.com");
         URI uri2 = URI.create("http://example2.com");
@@ -261,18 +165,11 @@ public class LinkServiceTest extends IntegrationEnvironment{
         Assertions.assertFalse(linkRepository.getLinkById(addedLink2.getId()).isPresent());
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Поиск старейших ссылок")
+    @Test
     @Transactional
     @Rollback
-    public void testFindOldestLinks(String implName,
-        ChatRepository chatRepository,
-        LinkRepository linkRepository,
-        ChatLinkRepository chatLinkRepository,
-        TgChatService tgChatService,
-        LinkService linkService) {
-
+    @DisplayName("Поиск старейших ссылок")
+    public void testFindOldestLinks() {
         long tgChatId = 123L;
         URI uri1 = URI.create("http://example1.com");
         URI uri2 = URI.create("http://example2.com");
@@ -298,18 +195,11 @@ public class LinkServiceTest extends IntegrationEnvironment{
         Assertions.assertFalse(oldestLinks.contains(addedLink3));
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Получение идентификаторов чатов по идентификатору ссылки")
+    @Test
     @Transactional
     @Rollback
-    public void testGetChatIdsByLinkId(String implName,
-        ChatRepository chatRepository,
-        LinkRepository linkRepository,
-        ChatLinkRepository chatLinkRepository,
-        TgChatService tgChatService,
-        LinkService linkService) {
-
+    @DisplayName("Получение идентификаторов чатов по идентификатору ссылки")
+    public void testGetChatIdsByLinkId() {
         long tgChatId1 = 123L;
         long tgChatId2 = 456L;
         long tgChatId3 = 789L;
@@ -333,18 +223,11 @@ public class LinkServiceTest extends IntegrationEnvironment{
         Assertions.assertTrue(chatIds.contains(tgChatId3));
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("implementations")
-    @DisplayName("Обновление времени последнего обновления ссылки")
+    @Test
     @Transactional
     @Rollback
-    public void testUpdateLastUpdatedTime(String implName,
-        ChatRepository chatRepository,
-        LinkRepository linkRepository,
-        ChatLinkRepository chatLinkRepository,
-        TgChatService tgChatService,
-        LinkService linkService) {
-
+    @DisplayName("Обновление времени последнего обновления ссылки")
+    public void testUpdateLastUpdatedTime() {
         long tgChatId = 123L;
         URI uri = URI.create("http://example.com");
 

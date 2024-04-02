@@ -1,6 +1,6 @@
 package edu.java.scrapper.scheduler;
 
-import edu.java.scrapper.service.jdbc.JDBCLinkService;
+import edu.java.scrapper.service.LinkService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "app.link-cleaner", name = "enable", havingValue = "true")
 public class LinkCleanerScheduler {
-    private final JDBCLinkService linkService;
+    private final LinkService linkService;
 
     @Scheduled(cron = "${app.link-cleaner.time-cron-expression}")
     public int update() {

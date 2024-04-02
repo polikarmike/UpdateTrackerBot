@@ -17,12 +17,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
-@Primary
 public class JDBCLinkService implements LinkService {
     private final JDBCLinkRepository linkRepository;
     private final JDBCChatRepository chatRepository;

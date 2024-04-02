@@ -12,12 +12,8 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
-@Primary
 public class JDBCTgChatService implements TgChatService {
     private final JDBCChatRepository chatRepository;
     private final JDBCChatLinkRepository chatLinkRepository;
