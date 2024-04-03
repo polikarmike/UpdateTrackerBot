@@ -16,12 +16,16 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name = "Link")
 @Getter
 @Setter
+@NoArgsConstructor
+@ToString(exclude = "chats")
 @EqualsAndHashCode(of = "id")
 public class Link {
 
@@ -39,27 +43,13 @@ public class Link {
     @Column(name = "last_updated_at")
     private OffsetDateTime lastUpdatedAt;
 
-
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "links")
     private List<Chat> chats = new ArrayList<>();
-
-    public Link() {
-    }
 
     public Link(URI uri) {
         this.uri = uri;
         this.createdAt = OffsetDateTime.now();
         this.lastUpdatedAt = OffsetDateTime.now();
-    }
-
-    @Override
-    public String toString() {
-        return "Link{"
-            + "id=" + id
-            + ", url=" + uri
-            + ", createdAt=" + createdAt
-            + ", lastUpdatedAt=" + lastUpdatedAt
-            + '}';
     }
 }
 

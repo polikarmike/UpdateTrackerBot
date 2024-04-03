@@ -8,11 +8,9 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
-import org.springframework.beans.factory.annotation.Qualifier;
 import static edu.java.scrapper.domain.jooq.tables.Chat.CHAT;
 
 @RequiredArgsConstructor
-@Qualifier("JOOQChatRepository")
 public class JOOQChatRepository implements ChatRepository {
 
     private final DSLContext dslContext;

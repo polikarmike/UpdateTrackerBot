@@ -17,6 +17,7 @@ public class StartCommand implements Command {
     private static final String REGISTRATION_SUCCESS_MESSAGE = "Чат успешно зарегистрирован.";
     private static final String DEFAULT_ERROR_MESSAGE = "В работе чата произошла ошибка, повторите попытку позднее";
     private static final String ALREADY_REGISTERED_MESSAGE = "Вы уже зарегистрированы!";
+    private static final String CONFLICT_ERROR_CODE = "409 CONFLICT";
 
     private final ScrapperClient scrapperClient;
 
@@ -30,7 +31,7 @@ public class StartCommand implements Command {
             return REGISTRATION_SUCCESS_MESSAGE;
         } catch (BadRequestException e) {
             return switch (e.getApiErrorResponse().code()) {
-                case "409 CONFLICT" -> ALREADY_REGISTERED_MESSAGE;
+                case CONFLICT_ERROR_CODE -> ALREADY_REGISTERED_MESSAGE;
                 default -> DEFAULT_ERROR_MESSAGE;
             };
         } catch (Exception e) {

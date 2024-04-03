@@ -7,11 +7,9 @@ import edu.java.scrapper.utils.mappers.ChatMapper;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @RequiredArgsConstructor
-@Qualifier("JDBCChatRepository")
 public class JDBCChatRepository implements ChatRepository {
 
     private final JdbcTemplate jdbcTemplate;

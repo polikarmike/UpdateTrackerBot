@@ -1,6 +1,5 @@
 package edu.java.scrapper.dto.entity;
 
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -14,13 +13,16 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+import lombok.ToString;
 
 @Entity
 @Table(name = "Chat")
 @Setter
 @Getter
+@NoArgsConstructor
+@ToString(exclude = "links")
 @EqualsAndHashCode(of = "id")
 public class Chat {
 
@@ -40,19 +42,8 @@ public class Chat {
 
     private List<Link> links = new ArrayList<>();
 
-    public Chat() {}
-
     public Chat(Long id) {
         this.id = id;
         this.createdAt = OffsetDateTime.now();
     }
-
-    @Override
-    public String toString() {
-        return "Chat{"
-            + "id=" + id
-            + ", createdAt=" + createdAt
-            + '}';
-    }
-
 }

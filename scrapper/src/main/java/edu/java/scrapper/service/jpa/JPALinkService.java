@@ -15,6 +15,7 @@ import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
@@ -41,7 +42,7 @@ public class JPALinkService implements LinkService {
 
         Link link = getOrCreate(uri);
 
-        if (linkRepository.exists(chat.getId(), link.getId())) {
+        if (linkRepository.existsByChatsIdAndId(chat.getId(), link.getId())) {
             throw new RepeatedLinkAdditionException(REPEATED_LINK_ADDITION_ERROR_MESSAGE);
         }
 
@@ -62,7 +63,7 @@ public class JPALinkService implements LinkService {
         Link existingLink = linkRepository.findByUri(uri)
             .orElseThrow(() -> new LinkNotFoundException(NO_LINK_ERROR_MESSAGE));
 
-        if (!linkRepository.exists(chat.getId(), existingLink.getId())) {
+        if (!linkRepository.existsByChatsIdAndId(chat.getId(), existingLink.getId())) {
             throw new LinkNotFoundException(LINK_NOT_FOUND_ERROR_MESSAGE);
         }
 
@@ -81,7 +82,7 @@ public class JPALinkService implements LinkService {
         Link existingLink = linkRepository.findById(id)
             .orElseThrow(() -> new LinkNotFoundException(NO_LINK_ERROR_MESSAGE));
 
-        if (!linkRepository.exists(chat.getId(), existingLink.getId())) {
+        if (!linkRepository.existsByChatsIdAndId(chat.getId(), existingLink.getId())) {
             throw new LinkNotFoundException(LINK_NOT_FOUND_ERROR_MESSAGE);
         }
 
@@ -103,7 +104,7 @@ public class JPALinkService implements LinkService {
     @Override
     @Transactional
     public List<Link> findOldestLinks(int batchSize) {
-        return linkRepository.findOldestLinks(batchSize);
+        return linkRepository.findAllByOrderByLastUpdatedAtAsc(PageRequest.of(0, batchSize));
     }
 
     @Override
@@ -129,12 +130,11 @@ public class JPALinkService implements LinkService {
     @Override
     @Transactional
     public int cleanUpUnusedLink() {
-        List<Link> unusedLinks = linkRepository.findUnusedLinks();
+        List<Link> unusedLinks = linkRepository.findByChatsIsEmpty();
         unusedLinks.forEach(linkRepository::delete);
         return unusedLinks.size();
     }
 
-    @Transactional
     private Link getOrCreate(URI uri) {
         return linkRepository.findByUri(uri)
             .orElseGet(() -> linkRepository.save(new Link(uri)));
