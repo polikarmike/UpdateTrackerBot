@@ -23,8 +23,8 @@ bucket4j:
       rate-limits:
         - cache-key: "getRemoteAddr()"
           bandwidths:
-            - capacity: 10
-              time: 10
+            - capacity: 100
+              time: 1
               unit: seconds
 
 springdoc:
@@ -36,10 +36,10 @@ clients:
     host: http://localhost:8080
   configurations:
     retry:
+      strategy: constant
       max-attempts: 3
       interval: 2
       statuses: 500, 501
-      strategy: constant
 
 server:
   port: 8090

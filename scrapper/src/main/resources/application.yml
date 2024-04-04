@@ -17,12 +17,14 @@ clients:
     host: https://api.stackexchange.com/2.3
   bot:
     host: http://localhost:8090
+  strategy: constant
   configurations:
     retry:
+      strategy: constant
       max-attempts: 3
       interval: 2
-      statuses: 404, 500, 501
-      strategy: linear
+      statuses: 500, 501
+
 
 spring:
   application:
@@ -49,10 +51,9 @@ bucket4j:
       rate-limits:
         - cache-key: "getRemoteAddr()"
           bandwidths:
-            - capacity: 10
-              time: 10
+            - capacity: 100
+              time: 1
               unit: seconds
-
 
 springdoc:
   swagger-ui:

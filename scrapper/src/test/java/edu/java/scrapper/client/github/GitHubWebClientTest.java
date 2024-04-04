@@ -18,6 +18,7 @@ import reactor.core.Exceptions;
 import java.lang.reflect.Type;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -67,7 +68,7 @@ public class GitHubWebClientTest {
                 .withBody(jsonResponse)));
 
         Set<Integer> emptyCodes = new HashSet<>(); ;
-        RetryPolicy retryPolicy = new RetryPolicy(0,0, emptyCodes, new ConstantBackOffStrategy());
+        RetryPolicy retryPolicy = new RetryPolicy(emptyCodes, new ConstantBackOffStrategy());
 
         GitHubClient gitHubClient = new GitHubWebClient("http://localhost:" + WIREMOCK_PORT, retryPolicy);
 
@@ -109,7 +110,7 @@ public class GitHubWebClientTest {
                 .withBody(jsonResponse)));
 
         Set<Integer> emptyCodes = new HashSet<>(); ;
-        RetryPolicy retryPolicy = new RetryPolicy(0,0, emptyCodes, new ConstantBackOffStrategy());
+        RetryPolicy retryPolicy = new RetryPolicy(emptyCodes,new ConstantBackOffStrategy());
 
         GitHubClient gitHubClient = new GitHubWebClient("http://localhost:" + WIREMOCK_PORT, retryPolicy);
 
@@ -133,12 +134,12 @@ public class GitHubWebClientTest {
                 .withStatus(500)
                 .withBody("Server Error")));
 
-        Set<Integer> retryStatuses = Set.of(500);
-        RetryPolicy retryPolicy = new RetryPolicy(3, 1, retryStatuses, new LinearBackOffStrategy());
+        Set<Integer> retryStatuses = new HashSet<>(Arrays.asList(404, 500, 501));
+        RetryPolicy retryPolicy = new RetryPolicy(retryStatuses, new ConstantBackOffStrategy());
 
         GitHubClient gitHubClient = new GitHubWebClient("http://localhost:" + WIREMOCK_PORT, retryPolicy);
 
-        assertThrows(Throwable.class, () -> {
+        assertThrows(ServerException.class, () -> {
             gitHubClient.fetchRepository("octocat", "Hello-World");
         });
     }
@@ -153,7 +154,7 @@ public class GitHubWebClientTest {
                 .withBody("Server Error")));
 
         Set<Integer> retryStatuses = Set.of(500);
-        RetryPolicy retryPolicy = new RetryPolicy(3, 1, retryStatuses, new ConstantBackOffStrategy());
+        RetryPolicy retryPolicy = new RetryPolicy(retryStatuses, new ConstantBackOffStrategy());
 
         GitHubClient gitHubClient = new GitHubWebClient("http://localhost:" + WIREMOCK_PORT, retryPolicy);
 

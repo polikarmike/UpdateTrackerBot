@@ -34,7 +34,7 @@ public class ScrapperWebClientTest {
         wireMockServer.start();
         WireMock.configureFor("localhost", wireMockServer.port());
         Set<Integer> emptyCodes = new HashSet<>(); ;
-        RetryPolicy retryPolicy = new RetryPolicy(0,0, emptyCodes, new ConstantBackOffStrategy());
+        RetryPolicy retryPolicy = new RetryPolicy(emptyCodes, new ConstantBackOffStrategy());
         client = new ScrapperWebClient("http://localhost:" + wireMockServer.port(), retryPolicy);
     }
 

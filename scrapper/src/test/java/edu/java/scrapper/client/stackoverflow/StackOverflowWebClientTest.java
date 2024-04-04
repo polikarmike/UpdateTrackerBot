@@ -66,7 +66,7 @@ public class StackOverflowWebClientTest {
                 .withBody(jsonResponse)));
 
         Set<Integer> emptyCodes = new HashSet<>(); ;
-        RetryPolicy retryPolicy = new RetryPolicy(0,0, emptyCodes, new ConstantBackOffStrategy());
+        RetryPolicy retryPolicy = new RetryPolicy(emptyCodes, new ConstantBackOffStrategy());
 
         StackOverflowClient gitHubClient = new StackOverflowWebClient("http://localhost:" + WIREMOCK_PORT, retryPolicy);
 
@@ -111,7 +111,7 @@ public class StackOverflowWebClientTest {
                 .withBody(jsonResponse)));
 
         Set<Integer> emptyCodes = new HashSet<>(); ;
-        RetryPolicy retryPolicy = new RetryPolicy(0,0, emptyCodes, new ConstantBackOffStrategy());
+        RetryPolicy retryPolicy = new RetryPolicy(emptyCodes, new ConstantBackOffStrategy());
         StackOverflowClient gitHubClient = new StackOverflowWebClient("http://localhost:" + WIREMOCK_PORT, retryPolicy);
 
         // when
@@ -139,7 +139,7 @@ public class StackOverflowWebClientTest {
                 .withBody("Server Error")));
 
         Set<Integer> retryStatuses = Set.of(500);
-        RetryPolicy retryPolicy = new RetryPolicy(3, 1, retryStatuses, new LinearBackOffStrategy());
+        RetryPolicy retryPolicy = new RetryPolicy(retryStatuses, new LinearBackOffStrategy());
 
         StackOverflowClient gitHubClient = new StackOverflowWebClient("http://localhost:" + WIREMOCK_PORT, retryPolicy);
 

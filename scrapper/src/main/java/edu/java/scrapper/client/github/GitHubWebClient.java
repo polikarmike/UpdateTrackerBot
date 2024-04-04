@@ -25,7 +25,6 @@ public class GitHubWebClient implements GitHubClient {
             .baseUrl(baseUrl)
             .filter(retryPolicy.getRetryFilter())
             .build();
-
     }
 
     @Override
@@ -34,7 +33,7 @@ public class GitHubWebClient implements GitHubClient {
             .uri(REPO_ENDPOINT_TEMPLATE, owner, repoName)
             .retrieve()
             .bodyToMono(GHRepoResponse.class)
-            .log().block();
+            .block();
     }
 
     @Override

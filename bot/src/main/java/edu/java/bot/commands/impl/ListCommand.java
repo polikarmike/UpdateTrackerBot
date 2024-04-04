@@ -18,9 +18,7 @@ import org.springframework.stereotype.Component;
 public class ListCommand implements Command {
     private static final String COMMAND_NAME = "/list";
     private static final String COMMAND_DESCRIPTION = "Отобразить список отслеживаемых ссылок";
-    private static final String COMMAND_RESPONSE = "Здесь будет реализация команды /list";
     private static final String EMPTY_LIST_MESSAGE = "Список отслеживаемых ссылок пуст.";
-    private static final String ERROR_MESSAGE = "Ошибка при получении списка ссылок: ";
     private static final String TRACKED_LINKS_HEADER = "Вот отслеживаемые ссылки:\n\n";
     private static final String DEFAULT_ERROR_MESSAGE = "В работе чата произошла ошибка, повторите попытку позднее";
     private static final String CHAT_NOT_FOUND_MESSAGE = "Вы не зарегистрированы!";

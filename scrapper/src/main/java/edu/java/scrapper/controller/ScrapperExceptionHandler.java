@@ -10,6 +10,7 @@ import edu.java.scrapper.exception.RepeatedRegistrationException;
 import edu.java.scrapper.exception.ServerException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.RejectedExecutionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -79,6 +80,12 @@ public class ScrapperExceptionHandler {
     @ExceptionHandler(ServerException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiErrorResponse handleServerException(ServerException ex) {
+        return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.toString(), ex);
+    }
+
+    @ExceptionHandler(RejectedExecutionException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ApiErrorResponse handleRejectedExecutionException(RejectedExecutionException ex) {
         return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.toString(), ex);
     }
 
