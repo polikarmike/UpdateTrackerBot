@@ -12,7 +12,7 @@ app:
   database-access-type: jpa
 
 kafka:
-  bootstrapAddress: localhost:9092
+  bootstrapAddress: ${spring.kafka.bootstrap-servers}
   groupId: UTBGroupId
   topic: message-update
 

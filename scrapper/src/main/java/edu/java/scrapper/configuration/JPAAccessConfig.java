@@ -1,10 +1,10 @@
 package edu.java.scrapper.configuration;
 
-import edu.java.scrapper.client.bot.BotClient;
 import edu.java.scrapper.domain.repository.jpa.JPAChatRepository;
 import edu.java.scrapper.domain.repository.jpa.JPALinkRepository;
 import edu.java.scrapper.service.LinkService;
 import edu.java.scrapper.service.LinkUpdater;
+import edu.java.scrapper.service.NotificationService;
 import edu.java.scrapper.service.TgChatService;
 import edu.java.scrapper.service.jpa.JPALinkService;
 import edu.java.scrapper.service.jpa.JPALinkUpdater;
@@ -31,8 +31,8 @@ public class JPAAccessConfig {
 
     @Bean
     public LinkUpdater linkUpdater(LinkService linkService, UpdaterHolder updaterHolder,
-        BotClient botClient) {
-        return new JPALinkUpdater(linkService, updaterHolder, botClient);
+        NotificationService notificationService) {
+        return new JPALinkUpdater(linkService, updaterHolder, notificationService);
     }
 
 }

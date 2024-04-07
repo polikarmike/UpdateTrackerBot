@@ -7,21 +7,28 @@ import liquibase.database.Database;
 import liquibase.database.core.PostgresDatabase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.DirectoryResourceAccessor;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.JdbcDatabaseContainer;
+import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Collections;
 
 @Testcontainers
 public abstract class IntegrationEnvironment {
     public static PostgreSQLContainer<?> POSTGRES;
+    public static KafkaContainer KAFKA;
+
 
     static {
         POSTGRES = new PostgreSQLContainer<>("postgres:15")
@@ -33,6 +40,12 @@ public abstract class IntegrationEnvironment {
         POSTGRES.start();
 
         runMigrations(POSTGRES);
+
+        KAFKA = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:latest"))
+            .withEnv("KAFKA_ZOOKEEPER_CONNECT", "zookeeper:2181")
+            .withEnv("KAFKA_ADVERTISED_LISTENERS", "PLAINTEXT://localhost:9092");
+
+        KAFKA.start();
     }
 
     public static void runMigrations(JdbcDatabaseContainer<?> container) {
@@ -49,6 +62,9 @@ public abstract class IntegrationEnvironment {
         registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
         registry.add("spring.datasource.username", POSTGRES::getUsername);
         registry.add("spring.datasource.password", POSTGRES::getPassword);
+
+        registry.add("spring.kafka.bootstrap-servers", KAFKA::getBootstrapServers);
+        System.out.println(KAFKA.getBootstrapServers());
     }
 
     private static Connection createConnection(JdbcDatabaseContainer<?> container) throws SQLException {

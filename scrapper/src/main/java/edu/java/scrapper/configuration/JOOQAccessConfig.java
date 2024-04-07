@@ -1,11 +1,11 @@
 package edu.java.scrapper.configuration;
 
-import edu.java.scrapper.client.bot.BotClient;
 import edu.java.scrapper.domain.repository.jooq.JOOQChatLinkRepository;
 import edu.java.scrapper.domain.repository.jooq.JOOQChatRepository;
 import edu.java.scrapper.domain.repository.jooq.JOOQLinkRepository;
 import edu.java.scrapper.service.LinkService;
 import edu.java.scrapper.service.LinkUpdater;
+import edu.java.scrapper.service.NotificationService;
 import edu.java.scrapper.service.TgChatService;
 import edu.java.scrapper.service.jooq.JOOQLinkService;
 import edu.java.scrapper.service.jooq.JOOQLinkUpdater;
@@ -34,8 +34,9 @@ public class JOOQAccessConfig {
 
     @Bean
     public LinkUpdater linkUpdater(
-        LinkService linkService, UpdaterHolder updaterHolder, BotClient botClient) {
-        return new JOOQLinkUpdater(linkService, updaterHolder, botClient);
+        LinkService linkService, UpdaterHolder updaterHolder, NotificationService notificationService
+        ) {
+        return new JOOQLinkUpdater(linkService, updaterHolder, notificationService);
     }
 
     @Bean

@@ -1,10 +1,10 @@
 package edu.java.scrapper.service.jooq;
 
 import edu.java.common.dto.requests.LinkUpdateRequest;
-import edu.java.scrapper.client.bot.BotClient;
 import edu.java.scrapper.dto.entity.Link;
 import edu.java.scrapper.service.LinkService;
 import edu.java.scrapper.service.LinkUpdater;
+import edu.java.scrapper.service.NotificationService;
 import edu.java.scrapper.updater.Updater;
 import edu.java.scrapper.updater.UpdaterHolder;
 import java.util.List;
@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 public class JOOQLinkUpdater implements LinkUpdater {
     private final LinkService linkService;
     private final UpdaterHolder updaterHolder;
-    private final BotClient botClient;
+    private final NotificationService notificationService;
 
     @Value("${app.link-updater.batch-size}")
     private int batchSize;
@@ -31,7 +31,8 @@ public class JOOQLinkUpdater implements LinkUpdater {
 
             if (message.isPresent()) {
                 List<Long> chatsIds = linkService.getChatIdsByLinkId(link.getId());
-                botClient.sendUpdate(new LinkUpdateRequest(link.getId(), link.getUri(), message.get(), chatsIds));
+                LinkUpdateRequest update = new LinkUpdateRequest(link.getId(), link.getUri(), message.get(), chatsIds);
+                notificationService.sendNotification(update);
             }
 
             linkService.updateLastUpdatedTime(link.getId());
