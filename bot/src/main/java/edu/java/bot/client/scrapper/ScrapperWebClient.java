@@ -1,5 +1,6 @@
 package edu.java.bot.client.scrapper;
 
+import edu.java.bot.client.configuration.retry.RetryPolicy;
 import edu.java.bot.exception.BadRequestException;
 import edu.java.common.dto.requests.AddLinkRequest;
 import edu.java.common.dto.requests.RemoveLinkRequest;
@@ -21,15 +22,17 @@ public class ScrapperWebClient implements ScrapperClient {
     public static final String TG_CHAT_ID_HEADER = "Tg-Chat-Id";
     private final WebClient webClient;
 
-    public ScrapperWebClient() {
+    public ScrapperWebClient(RetryPolicy retryPolicy) {
         this.webClient = WebClient.builder()
             .baseUrl(DEFAULT_BASE_URL)
+            .filter(retryPolicy.getRetryFilter())
             .build();
     }
 
-    public ScrapperWebClient(String baseUrl) {
+    public ScrapperWebClient(String baseUrl, RetryPolicy retryPolicy) {
         this.webClient = WebClient.builder()
             .baseUrl(baseUrl)
+            .filter(retryPolicy.getRetryFilter())
             .build();
     }
 

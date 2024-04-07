@@ -3,6 +3,9 @@ package edu.java.scrapper.client.stackoverflow;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import edu.java.scrapper.client.configuration.retry.RetryPolicy;
+import edu.java.scrapper.client.configuration.retry.strategy.ConstantBackOffStrategy;
+import edu.java.scrapper.client.configuration.retry.strategy.LinearBackOffStrategy;
 import edu.java.scrapper.dto.stackoverflow.SQQuestAnswerResponse;
 import edu.java.scrapper.dto.stackoverflow.SOQuestResponse;
 import org.junit.jupiter.api.AfterAll;
@@ -13,10 +16,13 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.HashSet;
+import java.util.Set;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -59,7 +65,10 @@ public class StackOverflowWebClientTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(jsonResponse)));
 
-        StackOverflowClient gitHubClient = new StackOverflowWebClient("http://localhost:" + WIREMOCK_PORT);
+        Set<Integer> emptyCodes = new HashSet<>(); ;
+        RetryPolicy retryPolicy = new RetryPolicy(emptyCodes, new ConstantBackOffStrategy());
+
+        StackOverflowClient gitHubClient = new StackOverflowWebClient("http://localhost:" + WIREMOCK_PORT, retryPolicy);
 
         // when
         SOQuestResponse response = gitHubClient.fetchQuestion("78056268");
@@ -101,7 +110,9 @@ public class StackOverflowWebClientTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(jsonResponse)));
 
-        StackOverflowClient gitHubClient = new StackOverflowWebClient("http://localhost:" + WIREMOCK_PORT);
+        Set<Integer> emptyCodes = new HashSet<>(); ;
+        RetryPolicy retryPolicy = new RetryPolicy(emptyCodes, new ConstantBackOffStrategy());
+        StackOverflowClient gitHubClient = new StackOverflowWebClient("http://localhost:" + WIREMOCK_PORT, retryPolicy);
 
         // when
         SQQuestAnswerResponse response = gitHubClient.fetchAnswers("78056268");
@@ -117,5 +128,25 @@ public class StackOverflowWebClientTest {
 
         assertEquals(expectedLastActivityDate1, itemResponse1.lastUpdateTime());
         assertEquals(expectedLastActivityDate2, itemResponse2.lastUpdateTime());
+    }
+
+    @Test
+    @DisplayName("Тестирование получения вопроса с повторными попытками")
+    public void fetchQuestionWithRetryTest(){
+        stubFor(get(urlEqualTo("/questions/78056268?site=stackoverflow"))
+            .willReturn(aResponse()
+                .withStatus(500)
+                .withBody("Server Error")));
+
+        Set<Integer> retryStatuses = Set.of(500);
+        RetryPolicy retryPolicy = new RetryPolicy(retryStatuses, new LinearBackOffStrategy());
+
+        StackOverflowClient gitHubClient = new StackOverflowWebClient("http://localhost:" + WIREMOCK_PORT, retryPolicy);
+
+
+        assertThrows(Throwable.class, () -> {
+            gitHubClient.fetchQuestion("78056268");
+        });
+
     }
 }

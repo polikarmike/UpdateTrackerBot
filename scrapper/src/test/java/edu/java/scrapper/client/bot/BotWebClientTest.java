@@ -4,11 +4,16 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import edu.java.common.dto.requests.LinkUpdateRequest;
+import edu.java.scrapper.client.configuration.retry.RetryPolicy;
+import edu.java.scrapper.client.configuration.retry.strategy.ConstantBackOffStrategy;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -23,7 +28,9 @@ public class BotWebClientTest {
         wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
         wireMockServer.start();
         WireMock.configureFor("localhost", wireMockServer.port());
-        client = new BotWebClient("http://localhost:" + wireMockServer.port());
+        Set<Integer> emptyCodes = new HashSet<>(); ;
+        RetryPolicy retryPolicy = new RetryPolicy(emptyCodes, new ConstantBackOffStrategy());
+        client = new BotWebClient("http://localhost:" + wireMockServer.port(), retryPolicy);
     }
 
     @Test
