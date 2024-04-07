@@ -48,11 +48,10 @@ public class BotWebClientTest {
 
         String response = client.sendUpdate(updateRequest);
 
-//        System.out.println(response);
-//        assertEquals("Update sent", response);
+        assertEquals("Update sent", response);
 
-//        WireMock.verify(postRequestedFor(urlEqualTo("/updates"))
-//            .withRequestBody(WireMock.equalTo(requestBody)));
+        WireMock.verify(postRequestedFor(urlEqualTo("/updates"))
+            .withRequestBody(WireMock.equalTo(requestBody)));
     }
 
     @AfterEach

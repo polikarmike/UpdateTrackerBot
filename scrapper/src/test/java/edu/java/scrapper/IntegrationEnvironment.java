@@ -64,7 +64,6 @@ public abstract class IntegrationEnvironment {
         registry.add("spring.datasource.password", POSTGRES::getPassword);
 
         registry.add("spring.kafka.bootstrap-servers", KAFKA::getBootstrapServers);
-        System.out.println(KAFKA.getBootstrapServers());
     }
 
     private static Connection createConnection(JdbcDatabaseContainer<?> container) throws SQLException {
