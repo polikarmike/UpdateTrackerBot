@@ -21,7 +21,7 @@ public class KafkaUpdateListenerTest {
     private LinkUpdateService linkUpdateService;
 
     @Mock
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private ScrapperQueueProducer scrapperQueueProducer;
 
     @InjectMocks
     private KafkaUpdateListener kafkaUpdateListener;
@@ -36,9 +36,9 @@ public class KafkaUpdateListenerTest {
     public void testListenInvalidResponse() throws IOException {
         String update = "update";
 
-        assertThrows(BadRequestException.class, () -> kafkaUpdateListener.listen(update));
+        kafkaUpdateListener.listen(update);
 
-        verify(kafkaTemplate).send(any(), eq(update));
+        verify(scrapperQueueProducer).sendToDLQ(eq(update));
     }
 
     @Test
