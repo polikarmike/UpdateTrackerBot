@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-
 @Slf4j
 @Component
 @ConditionalOnProperty(prefix = "app.scheduler", name = "enable", havingValue = "true")

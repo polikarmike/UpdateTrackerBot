@@ -9,7 +9,6 @@ import edu.java.scrapper.client.configuration.retry.strategy.ConstantBackOffStra
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashSet;

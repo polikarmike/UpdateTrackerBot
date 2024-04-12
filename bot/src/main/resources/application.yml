@@ -1,6 +1,12 @@
 app:
   telegram-token: ${TELEGRAM_TOKEN}
 
+kafka:
+  bootstrapAddress: localhost:9092
+  groupId: UTBGroupId
+  topic: message-update
+  dlq: UTB_dlq
+
 spring:
   application:
     name: bot

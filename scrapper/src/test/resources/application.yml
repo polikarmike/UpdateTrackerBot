@@ -1,5 +1,5 @@
 app:
-  useQueue: true
+  useQueue: false
   scheduler:
     enable: true
     interval: 20000
@@ -12,7 +12,7 @@ app:
   database-access-type: jpa
 
 kafka:
-  bootstrapAddress: localhost:9092
+  bootstrapAddress: ${spring.kafka.bootstrap-servers}
   groupId: UTBGroupId
   topic: message-update
 

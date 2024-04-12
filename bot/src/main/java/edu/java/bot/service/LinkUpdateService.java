@@ -13,7 +13,13 @@ public class LinkUpdateService {
 
     public void processLinkUpdate(LinkUpdateRequest linkUpdateRequest) {
         for (Long chatId : linkUpdateRequest.tgChatIds()) {
-            bot.execute(new SendMessage(chatId, "Уведомление из Scrapper"));
+            String message = String.format(
+                "Новое обновление:\n\nСсылка: %s\nОписание: %s",
+                linkUpdateRequest.url(),
+                linkUpdateRequest.description()
+            );
+
+            bot.execute(new SendMessage(chatId, message));
         }
     }
 }

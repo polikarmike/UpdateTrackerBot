@@ -1,11 +1,11 @@
 package edu.java.scrapper.configuration;
 
-import edu.java.scrapper.client.bot.BotClient;
 import edu.java.scrapper.domain.repository.jdbc.JDBCChatLinkRepository;
 import edu.java.scrapper.domain.repository.jdbc.JDBCChatRepository;
 import edu.java.scrapper.domain.repository.jdbc.JDBCLinkRepository;
 import edu.java.scrapper.service.LinkService;
 import edu.java.scrapper.service.LinkUpdater;
+import edu.java.scrapper.service.NotificationService;
 import edu.java.scrapper.service.TgChatService;
 import edu.java.scrapper.service.jdbc.JDBCLinkService;
 import edu.java.scrapper.service.jdbc.JDBCLinkUpdater;
@@ -34,8 +34,8 @@ public class JDBCAccessConfig {
 
     @Bean
     public LinkUpdater linkUpdater(LinkService linkService,
-        UpdaterHolder updaterHolder, BotClient botClient) {
-        return new JDBCLinkUpdater(linkService, updaterHolder, botClient);
+        UpdaterHolder updaterHolder, NotificationService notificationService) {
+        return new JDBCLinkUpdater(linkService, updaterHolder, notificationService);
     }
 
     @Bean
