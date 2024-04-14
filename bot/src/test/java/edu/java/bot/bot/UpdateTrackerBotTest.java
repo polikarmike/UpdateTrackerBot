@@ -6,6 +6,7 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.commands.CommandHolder;
 import edu.java.bot.processor.SimpleUserMessageProcessor;
+import io.micrometer.core.instrument.Counter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ class UpdateTrackerBotTest {
     private SimpleUserMessageProcessor simpleUserMessageProcessor;
     private CommandHolder commandHolder;
     private UpdateTrackerBot updateTrackerBot;
+
 
     @BeforeEach
     void setUp() {

@@ -1,6 +1,20 @@
 app:
   telegram-token: ${TELEGRAM_TOKEN}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "info,health,prometheus"
+      base-path: /
+      path-mapping:
+        prometheus: "metrics"
+  metrics:
+    tags:
+      application: "${spring.application.name}"
+  server:
+    port: 8095
+
 kafka:
   bootstrapAddress: localhost:9092
   groupId: UTBGroupId
