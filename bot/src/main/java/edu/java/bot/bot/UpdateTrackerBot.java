@@ -11,20 +11,32 @@ import com.pengrad.telegrambot.response.BaseResponse;
 import edu.java.bot.commands.Command;
 import edu.java.bot.commands.CommandHolder;
 import edu.java.bot.processor.SimpleUserMessageProcessor;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Metrics;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class UpdateTrackerBot  implements Bot {
     private final TelegramBot bot;
     private final SimpleUserMessageProcessor simpleUserMessageProcessor;
     private final CommandHolder commandHolder;
+    private final Counter processedMessages;
+
+    public UpdateTrackerBot(TelegramBot bot,
+                            SimpleUserMessageProcessor simpleUserMessageProcessor,
+                            CommandHolder commandHolder) {
+        this.bot = bot;
+        this.simpleUserMessageProcessor = simpleUserMessageProcessor;
+        this.commandHolder = commandHolder;
+        this.processedMessages = Counter.builder("processed.messages")
+            .description("Количество обработанных сообщений")
+            .register(Metrics.globalRegistry);
+    }
 
     @Override
     public <T extends BaseRequest<T, R>, R extends BaseResponse> void execute(BaseRequest<T, R> request) {
@@ -44,6 +56,7 @@ public class UpdateTrackerBot  implements Bot {
 
             SendMessage response = simpleUserMessageProcessor.process(update);
             execute(response);
+            processedMessages.increment();
         }
 
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
@@ -74,7 +87,6 @@ public class UpdateTrackerBot  implements Bot {
 
         execute(new SetMyCommands(menuCommands));
         log.info("Menu commands created successfully.");
-
     }
 
     private BotCommand toApiCommand(Command command) {

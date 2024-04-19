@@ -9,7 +9,21 @@ app:
   link-cleaner:
     enable: true
     time-cron-expression: 0 0 2 * * ? # second minute hour dayOfMonth month dayOfWeek
-  database-access-type: jpa
+  database-access-type: jdbc
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "info,health,prometheus"
+      base-path: /
+      path-mapping:
+        prometheus: "metrics"
+  metrics:
+    tags:
+      application: "${spring.application.name}"
+  server:
+    port: 8085
 
 kafka:
   bootstrapAddress: localhost:9092
@@ -47,19 +61,6 @@ spring:
       - rate-limit-buckets
     caffeine:
       spec: maximumSize=100000,expireAfterAccess=3600s
-
-bucket4j:
-  enabled: true
-  filters:
-    - cache-name: rate-limit-buckets
-      strategy: first
-      http-response-body: "{ \"status\": 429, \"error\": \"Too Many Requests\", \"message\": \"You have exhausted your API Request Quota\" }"
-      rate-limits:
-        - cache-key: "getRemoteAddr()"
-          bandwidths:
-            - capacity: 100
-              time: 1
-              unit: seconds
 
 springdoc:
   swagger-ui:
